@@ -17,13 +17,13 @@ class MaStrategy(BaseStrategy):
         for item in data.items():
             if last_ma == 0:
                 last_ma = item[1]['ma10']
-            current_price = item[1]['open']
+            current_price = item[1]['close']
             if self.__should_buy(current_price, last_ma):
-                result.append({'date': item[0], 'deal': self.BUY_IN})
+                result.append({'date': item[0], 'deal': self.BUY_IN, 'price': current_price})
             elif self.__should_sell(current_price, last_ma):
-                result.append({'date': item[0], 'deal': self.SELL_OUT})
+                result.append({'date': item[0], 'deal': self.SELL_OUT, 'price': current_price})
             else:
-                result.append({'date': item[0], 'deal': self.DO_NOTHING})
+                result.append({'date': item[0], 'deal': self.DO_NOTHING, 'price': None})
             last_ma = item[1]['ma10']
         return result
 
@@ -48,15 +48,15 @@ class MaStrategy(BaseStrategy):
 
 if __name__ == "__main__":
     history_data = {}
-    history_01 = {'open': 13.0, 'ma10': 12}
+    history_01 = {'close': 13.0, 'ma10': 12}
     history_data['2016-01-01'] = history_01
-    history_02 = {'open': 13.4, 'ma10': 12.3}
+    history_02 = {'close': 13.4, 'ma10': 12.3}
     history_data['2016-01-02'] = history_02
-    history_03 = {'open': 12.7, 'ma10': 12.6}
+    history_03 = {'close': 12.7, 'ma10': 12.6}
     history_data['2016-01-03'] = history_03
-    history_04 = {'open': 11.8, 'ma10': 12.45}
+    history_04 = {'close': 11.8, 'ma10': 12.45}
     history_data['2016-01-04'] = history_04
-    history_05 = {'open': 13.0, 'ma10': 12.4}
+    history_05 = {'close': 13.0, 'ma10': 12.4}
     history_data['2016-01-05'] = history_05
 
     stock_hist_data = {}
