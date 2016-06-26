@@ -22,7 +22,7 @@ class DealStrategy(object):
                 volume = self.__buy_in(stock_code, price, holding)
                 result.append({'deal_volume': volume, 'deal_price': price})
             elif deal_type == 2:
-                self.__sell_out(stock_code, price, holding)
+                volume = self.__sell_out(stock_code, price, holding)
                 result.append({'deal_volume': -volume, 'deal_price': price})
         return result
 
@@ -40,7 +40,8 @@ class DealStrategy(object):
         holding['shares'] += volume
         holding['cost'] = (cost * shares + price * volume) / (shares + volume)
         holding['fund'] -= price * volume
-        print holding['shares'], holding['cost'], holding['fund']
+        _logger.info("buy in stock(%r), increase shares = %r." % (stock_code, volume))
+        _logger.info("buy in stock(%r), total shares = %r, cost = %r, cash = %r" % (stock_code, holding['shares'], holding['cost'], holding['fund']))
         return volume
 
     def __sell_out(self, stock_code, price, holding):
@@ -52,7 +53,8 @@ class DealStrategy(object):
             return 0
 
         volume = 0
-        if fund >= self.__init_fund * self.__sell_percent:
+        market_cap = cost * shares
+        if market_cap <= (self.__init_fund * self.__sell_percent):
             volume = shares
         else:
             volume = int(self.__init_fund * self.__sell_percent / (price * 100)) * 100
@@ -61,8 +63,10 @@ class DealStrategy(object):
         if volume == shares:
             holding['cost'] = 0
         else:
-            holding['cost'] = (cost * shares - price * volume) / (shares - volume)
+            holding['cost'] = (market_cap - price * volume) / (shares - volume)
         holding['fund'] += price * volume
+        _logger.info("sell out stock(%r), decrease shares = %r." % (stock_code, volume))
+        _logger.info("sell out stock(%r), total shares = %r, cost = %r, cash = %r" % (stock_code, holding['shares'], holding['cost'], holding['fund']))
         return volume
 
 if __name__ == "__main__":
