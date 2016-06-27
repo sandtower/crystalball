@@ -18,6 +18,7 @@ class MaStrategy(BaseStrategy):
             if last_ma == 0:
                 last_ma = item[1]['ma10']
             current_price = item[1]['close']
+            _logger.info("date = %r" % item[0]) 
             if self.__should_buy(current_price, last_ma):
                 result.append({'date': item[0], 'deal': self.BUY_IN, 'price': current_price})
             elif self.__should_sell(current_price, last_ma):

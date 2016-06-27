@@ -20,10 +20,10 @@ class DealStrategy(object):
             date = decision['date']
             if deal_type == 1:
                 volume = self.__buy_in(stock_code, price, holding)
-                result.append({'deal_volume': volume, 'deal_price': price})
+                result.append({'volume': volume, 'price': price, 'date': date})
             elif deal_type == 2:
                 volume = self.__sell_out(stock_code, price, holding)
-                result.append({'deal_volume': -volume, 'deal_price': price})
+                result.append({'volume': -volume, 'price': price, 'date': date})
         return result
 
     def __buy_in(self, stock_code, price, holding):
