@@ -15,9 +15,6 @@ import time
 
 _logger = logging.getLogger(__name__)
 
-def get_key(item):
-    return item['date']
-
 class CrystalBall(object):
     DEFAULT_STRATEGY = 'ma_strategy'
     def __init__(self):
@@ -58,8 +55,8 @@ class CrystalBall(object):
         deal_strategy = DealStrategy()
         sugestions = self.__trading_strategy.decide(context, stock_code)
         deals = deal_strategy.deal(context, stock_code, sugestions)
-        sorted(deals, key=get_key)
         _logger.info(deals)
+        server.send(json.dumps(deals))
 
     def __get_data(self, stock_code, start, end):
         collection = Collection(stock_code, self.__db)

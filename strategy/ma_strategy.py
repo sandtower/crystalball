@@ -18,8 +18,9 @@ class MaStrategy(BaseStrategy):
             if last_ma == 0:
                 last_ma = item[1]['ma10']
             current_price = item[1]['close']
+            turnover = item[1]['turnover']
             _logger.info("date = %r" % item[0]) 
-            if self.__should_buy(current_price, last_ma):
+            if self.__should_buy(current_price, last_ma, turnover):
                 result.append({'date': item[0], 'deal': self.BUY_IN, 'price': current_price})
             elif self.__should_sell(current_price, last_ma):
                 result.append({'date': item[0], 'deal': self.SELL_OUT, 'price': current_price})
@@ -28,12 +29,12 @@ class MaStrategy(BaseStrategy):
             last_ma = item[1]['ma10']
         return result
 
-    def __should_buy(self, buy_price, average):
+    def __should_buy(self, buy_price, average, turnover):
         if buy_price < average:
             return False
         variation = (buy_price - average) / average
         _logger.info("should buy? buy_price(%r), ma10_price(%r), variation(%r)" % (buy_price, average, variation))
-        if variation >= 0.05:
+        if variation >= 0.05 and turnover >= 5.0:
             return True
         return False
 

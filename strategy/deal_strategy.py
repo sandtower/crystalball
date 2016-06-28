@@ -3,7 +3,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class DealStrategy(object):
-    def __init__(self, init_fund=100000, buy_percent=0.2, sell_percent=0.5):
+    def __init__(self, init_fund=100000, buy_percent=0.2, sell_percent=0.2):
         self.__init_fund = init_fund
         self.__buy_percent = buy_percent
         self.__sell_percent = sell_percent
@@ -20,10 +20,12 @@ class DealStrategy(object):
             date = decision['date']
             if deal_type == 1:
                 volume = self.__buy_in(stock_code, price, holding)
-                result.append({'volume': volume, 'price': price, 'date': date})
+                if volume:
+                    result.append({'volume': volume, 'price': price, 'date': date})
             elif deal_type == 2:
                 volume = self.__sell_out(stock_code, price, holding)
-                result.append({'volume': -volume, 'price': price, 'date': date})
+                if volume:
+                    result.append({'volume': -volume, 'price': price, 'date': date})
         return result
 
     def __buy_in(self, stock_code, price, holding):
@@ -36,6 +38,8 @@ class DealStrategy(object):
             volume = int((self.__init_fund * self.__buy_percent) / (price * 100)) * 100
         else:
             volume = int(fund / (price * 100)) * 100
+        if volume == 0:
+            return 0
         
         holding['shares'] += volume
         holding['cost'] = (cost * shares + price * volume) / (shares + volume)
