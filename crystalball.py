@@ -1,4 +1,4 @@
-from collector.history_collector import HistoryCollector
+from collector.hist_data_collector import HistDataCollector
 from strategy.ma_strategy import MaStrategy
 from strategy.deal_strategy  import DealStrategy
 from util.db import DB, Collection
@@ -48,7 +48,7 @@ class CrystalBall(object):
         buy_percent = content.get('buy_ratio', 0.5)
         sell_percent = content.get('sell_ratio', 1)
         
-        HistoryCollector(stock_code, self.__db).collect_history_data()
+        HistDataCollector(stock_code, self.__db).collect()
         context = {}
         history_data = self.__get_data(stock_code, start, end)
         context['history'] = {stock_code: history_data}

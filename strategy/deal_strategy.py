@@ -3,7 +3,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class DealStrategy(object):
-    def __init__(self, init_fund=100000, buy_percent=0.2, sell_percent=0.2):
+    def __init__(self, init_fund=100000, buy_percent=0.2, sell_percent=1):
         self.__init_fund = init_fund
         self.__buy_percent = buy_percent
         self.__sell_percent = sell_percent

@@ -7,13 +7,13 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-class HistoryCollector(object):
+class HistDataCollector(object):
     def __init__(self, stock_code, db):
         self.__stock_code = stock_code
         self.__db = db
         self.__collection = Collection(stock_code, self.__db)
 
-    def collect_history_data(self):
+    def collect(self):
         begin_date = None
         last_record = self.__collection.find_one('date')
         if last_record:
@@ -39,5 +39,5 @@ class HistoryCollector(object):
 
 if __name__ == '__main__':
     db = DB(Constants.DB_NAME)
-    collector = HistoryCollector('600036', db)
+    collector = HistDataCollector('600036', db)
     collector.collect_history_data()
