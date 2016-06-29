@@ -1,4 +1,5 @@
 from collector.hist_data_collector import HistDataCollector
+from collector.hist_tick_collector import HistTickCollector
 from strategy.ma_strategy import MaStrategy
 from strategy.deal_strategy  import DealStrategy
 from util.db import DB, Collection
@@ -20,7 +21,9 @@ class CrystalBall(object):
     def __init__(self):
         self.__mq_server = None
         self.__db = DB(Constants.DB_NAME)
-        self.__trading_strategy = MaStrategy()
+        self.__trading_strategy = None
+        self.__hist_collector = None
+        self.__tick_collector = None
 
     def start(self):
         self.__mq_server = MqServer()
@@ -48,10 +51,13 @@ class CrystalBall(object):
         buy_percent = content.get('buy_ratio', 0.5)
         sell_percent = content.get('sell_ratio', 1)
         
-        HistDataCollector(stock_code, self.__db).collect()
+        self.__hist_collector = HistDataCollector(stock_code, self.__db)
+        self.__hist_collector.collect()
         context = {}
         history_data = self.__get_data(stock_code, start, end)
         context['history'] = {stock_code: history_data}
+        self.__tick_collector = HistTickCollector(stock_code)
+        self.__trading_strategy = MaStrategy(self.__price_generator)
         deal_strategy = DealStrategy()
         sugestions = self.__trading_strategy.decide(context, stock_code)
         deals = deal_strategy.deal(context, stock_code, sugestions)
@@ -70,6 +76,9 @@ class CrystalBall(object):
             if record_date > end_date:
                 break
         return OrderedDict(sorted(result.items(), key= lambda t: t[0]))
+
+    def __price_generator(self, date):
+        return self.__tick_collector.get_middle_price(date)
 
     def stop(self):
         self.__mq_server.stop()

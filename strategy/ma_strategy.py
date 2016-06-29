@@ -6,8 +6,8 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class MaStrategy(BaseStrategy):
-    def __init__(self):
-        pass
+    def __init__(self, price_generator):
+        self.__price_generator = price_generator
 
     def decide(self, context, stock_code):
         data = context['history'][stock_code]
@@ -17,7 +17,7 @@ class MaStrategy(BaseStrategy):
         for item in data.items():
             if last_ma == 0:
                 last_ma = item[1]['ma5']
-            current_price = item[1]['close']
+            current_price = self.__price_generator(item[0])
             turnover = item[1]['turnover']
             _logger.info("date = %r" % item[0]) 
             if self.__should_buy(current_price, last_ma, turnover):
