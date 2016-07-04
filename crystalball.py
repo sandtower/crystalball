@@ -53,13 +53,15 @@ class CrystalBall(object):
         
         self.__hist_collector = HistDataCollector(stock_code, self.__db)
         self.__hist_collector.collect()
+
         context = {}
         history_data = self.__get_data(stock_code, start, end)
         context['history'] = {stock_code: history_data}
+
         self.__tick_collector = HistTickCollector(stock_code)
         self.__trading_strategy = MaStrategy(self.__price_generator)
         deal_strategy = DealStrategy()
-        sugestions = self.__trading_strategy.decide(context, stock_code)
+        sugestions = self.__trading_strategy.decide(context, stock_code, start)
         deals = deal_strategy.deal(context, stock_code, sugestions)
         _logger.info(deals)
         server.send(json.dumps(deals))

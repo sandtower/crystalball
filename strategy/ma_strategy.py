@@ -1,6 +1,7 @@
 from strategy import BaseStrategy
 from collections import OrderedDict
 
+from datetime import datetime
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -9,12 +10,17 @@ class MaStrategy(BaseStrategy):
     def __init__(self, price_generator):
         self.__price_generator = price_generator
 
-    def decide(self, context, stock_code):
+    def decide(self, context, stock_code, start_date):
         data = context['history'][stock_code]
         result = []
 
         last_ma = 0
         for item in data.items():
+            start = datetime.strptime(start_date, '%Y-%m-%d')
+            current = datetime.strptime(item[0], '%Y-%m-%d')
+            if current < start:
+                continue
+
             if last_ma == 0:
                 last_ma = item[1]['ma5']
             current_price = self.__price_generator(item[0])
@@ -49,16 +55,19 @@ class MaStrategy(BaseStrategy):
         return False
 
 if __name__ == "__main__":
+    def get_current_price(date):
+        return 13.0
+
     history_data = {}
-    history_01 = {'close': 13.0, 'ma10': 12}
+    history_01 = {'close': 13.0, 'ma5': 12, 'turnover': 5.0}
     history_data['2016-01-01'] = history_01
-    history_02 = {'close': 13.4, 'ma10': 12.3}
+    history_02 = {'close': 13.4, 'ma5': 12.3, 'turnover': 7.0}
     history_data['2016-01-02'] = history_02
-    history_03 = {'close': 12.7, 'ma10': 12.6}
+    history_03 = {'close': 12.7, 'ma5': 12.6, 'turnover': 8.0}
     history_data['2016-01-03'] = history_03
-    history_04 = {'close': 11.8, 'ma10': 12.45}
+    history_04 = {'close': 11.8, 'ma5': 12.45, 'turnover': 4.5}
     history_data['2016-01-04'] = history_04
-    history_05 = {'close': 13.0, 'ma10': 12.4}
+    history_05 = {'close': 13.0, 'ma5': 12.4, 'turnover': 10.0}
     history_data['2016-01-05'] = history_05
 
     stock_hist_data = {}
@@ -67,7 +76,7 @@ if __name__ == "__main__":
     context = {}
     context['history'] = stock_hist_data
 
-    ma = MaStrategy()
-    result = ma.decide(context, '002657')
+    ma = MaStrategy(get_current_price)
+    result = ma.decide(context, '002657', '2016-01-01')
     print result
     

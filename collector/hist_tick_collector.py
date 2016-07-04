@@ -22,8 +22,6 @@ class HistTickCollector(object):
     def __get_middle_data(self, df):
         middle = len(df) / 2
         datas = df.head(middle).tail(1).to_dict()
-        print datas
-        print datas['price'].values()
         price = datas['price'].values()[0]
         volume = datas['volume'].values()[0]
         time = datas['time'].values()[0]
