@@ -1,14 +1,15 @@
 from collector.hist_data_collector import HistDataCollector
 from collector.hist_tick_collector import HistTickCollector
-from strategy.ma_strategy import MaStrategy
+from strategy.strategy_factory import StrategyFactory
 from strategy.deal_strategy  import DealStrategy
 from util.db import DB, Collection
 from util.constants import Constants
 from util.logger import logger
 from util.mq_server import MqServer, MsgQueueException
+from util.dump_stack import dumpstacks 
 
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import logging
 import pymongo
@@ -17,7 +18,8 @@ import time
 _logger = logging.getLogger(__name__)
 
 class CrystalBall(object):
-    DEFAULT_STRATEGY = 'ma_strategy'
+    DEFAULT_STRATEGY = 'macd_strategy'
+    DEFAULT_BAR_PERIOD = 30
     def __init__(self):
         self.__mq_server = None
         self.__db = DB(Constants.DB_NAME)
@@ -59,7 +61,7 @@ class CrystalBall(object):
         context['history'] = {stock_code: history_data}
 
         self.__tick_collector = HistTickCollector(stock_code)
-        self.__trading_strategy = MaStrategy(self.__price_generator)
+        self.__trading_strategy = StrategyFactory.create_strategy(strategy, self.__price_generator)
         deal_strategy = DealStrategy()
         sugestions = self.__trading_strategy.decide(context, stock_code, start)
         deals = deal_strategy.deal(context, stock_code, sugestions)
@@ -73,7 +75,7 @@ class CrystalBall(object):
         result = {}
         for record in collection.find().sort('date', pymongo.ASCENDING):
             record_date = datetime.strptime(record['date'], '%Y-%m-%d')
-            if record_date >= start_date: 
+            if record_date >= (start_date - timedelta(days=self.DEFAULT_BAR_PERIOD)): 
                 result[record['date']] = record
             if record_date > end_date:
                 break
@@ -86,6 +88,8 @@ class CrystalBall(object):
         self.__mq_server.stop()
 
 if __name__ == "__main__":
+    import signal
+    signal.signal(signal.SIGUSR1, dumpstacks)
     predict_ball = CrystalBall()
     predict_ball.start()
     time.sleep(10)
