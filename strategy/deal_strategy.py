@@ -58,10 +58,10 @@ class DealStrategy(object):
 
         volume = 0
         market_cap = cost * shares
-        if market_cap <= (self.__init_fund * self.__sell_percent):
+        if market_cap <= ((market_cap + fund) * self.__sell_percent):
             volume = shares
         else:
-            volume = int(self.__init_fund * self.__sell_percent / (price * 100)) * 100
+            volume = int((market_cap + fund) * self.__sell_percent / (price * 100)) * 100
         
         holding['shares'] -= volume
         if volume == shares:
