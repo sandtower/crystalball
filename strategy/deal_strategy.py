@@ -9,7 +9,7 @@ class DealStrategy(object):
         self.__sell_percent = sell_percent
 
     def deal(self, context, stock_code, decisions):
-        holding = {'shares':0, 'cost':0, 'fund':self.__init_fund}
+        holding = {'shares':0, 'cost':0, 'fund':self.__init_fund, 'factor':1}
         if context.get('holdings'):
             holding = contex['holdings'].get(stock_code, holding)
 
@@ -18,6 +18,13 @@ class DealStrategy(object):
             deal_type = decision['deal']
             price = decision['price']
             date = decision['date']
+            factor = decision['factor']
+            if factor > holding['factor']:
+                ratio = factor / holding['factor']
+                holding['shares'] = holding['shares'] * ratio
+                holding['cost'] = holding['cost'] / ratio
+                holding['factor'] = factor
+
             if deal_type == 1:
                 volume = self.__buy_in(stock_code, price, holding)
                 if volume:

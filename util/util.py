@@ -5,7 +5,7 @@ class Util(object):
     @staticmethod
     def get_today():
         today = datetime.today()
-        return today.strftime("%Y-%m-%d")
+        return today.strftime("%Y%m%d")
 
     @staticmethod
     def http_get_content(url, headers=None, charset=None):

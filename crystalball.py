@@ -22,7 +22,7 @@ class CrystalBall(object):
     DEFAULT_BAR_PERIOD = 30
     def __init__(self):
         self.__mq_server = None
-        self.__db = DB(Constants.DB_NAME)
+        self.__db = DB(Constants.HIST_DATA_DB_NAME)
         self.__trading_strategy = None
         self.__hist_collector = None
         self.__tick_collector = None

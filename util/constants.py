@@ -1,5 +1,6 @@
 class Constants(object):
-    DB_NAME = 'stock'
+    HIST_DATA_DB_NAME = 'hist_data'
+    HIST_TICK_DB_NAME = 'hist_tick'
     CURRENT_BASIC_QUERY_URL = 'http://qt.gtimg.cn/q=%s'
     REALTIME_BASIC_QUERY_URL = 'http://140.207.127.33/q=%s'
     CURRENT_FLOW_QUERY_URL = 'http://qt.gtimg.cn/q=ff_%s'
