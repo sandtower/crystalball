@@ -18,8 +18,8 @@ class MacdStrategy(BaseStrategy):
 
         prices = []
         for item in data.items():
-            close = item[1]['close']
-            prices.append(close)
+            fq_price = item[1]['fqPrice']
+            prices.append(fq_price)
             start = datetime.strptime(start_date, '%Y-%m-%d')
             current = datetime.strptime(item[0], '%Y-%m-%d')
             if current < start:
@@ -27,17 +27,16 @@ class MacdStrategy(BaseStrategy):
 
             macd = self.__macd(prices)
             current_price = self.__price_generator(item[0])
-            turnover = item[1]['turnover']
-            factor = close / current_price
+            fq_factor = item[1]['accumAdjFactor']
+            turnover = item[1]['turnoverRate']
             _logger.info("date = %r, macd = %r, current price = %r" % (item[0], macd, current_price)) 
-            print 'current_price =', current_price
 
             if macd < 0:
-                result.append({'date': item[0], 'deal': self.SELL_OUT, 'price': current_price, 'factor': factor})
-            elif macd > 0 and turnover > 5.0:
-                result.append({'date': item[0], 'deal': self.BUY_IN, 'price': current_price, 'factor': factor})
+                result.append({'date': item[0], 'deal': self.SELL_OUT, 'price': current_price, 'fq_factor': fq_factor})
+            elif macd > 0 and turnover > 0.05:
+                result.append({'date': item[0], 'deal': self.BUY_IN, 'price': current_price, 'fq_factor': fq_factor})
             else:
-                result.append({'date': item[0], 'deal': self.DO_NOTHING, 'price': None, 'factor': None})
+                result.append({'date': item[0], 'deal': self.DO_NOTHING, 'price': None, 'fq_factor': fq_factor})
         return result
 
     def __macd(self, prices, fastperiod=12, slowperiod=26, signalperiod=9):

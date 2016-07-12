@@ -9,7 +9,7 @@ class DealStrategy(object):
         self.__sell_percent = sell_percent
 
     def deal(self, context, stock_code, decisions):
-        holding = {'shares':0, 'cost':0, 'fund':self.__init_fund, 'factor':1}
+        holding = {'shares':0, 'cost':0.0, 'fund':self.__init_fund, 'fq_factor':0.0}
         if context.get('holdings'):
             holding = contex['holdings'].get(stock_code, holding)
 
@@ -18,12 +18,9 @@ class DealStrategy(object):
             deal_type = decision['deal']
             price = decision['price']
             date = decision['date']
-            factor = decision['factor']
-            if factor > holding['factor']:
-                ratio = factor / holding['factor']
-                holding['shares'] = holding['shares'] * ratio
-                holding['cost'] = holding['cost'] / ratio
-                holding['factor'] = factor
+            fq_factor = decision['fq_factor']
+            if holding['shares'] > 0:
+                self.__adjust_for_fq(holding, fq_factor)
 
             if deal_type == 1:
                 volume = self.__buy_in(stock_code, price, holding)
@@ -34,6 +31,17 @@ class DealStrategy(object):
                 if volume:
                     result.append({'volume': -volume, 'price': price, 'date': date})
         return result
+
+    def __adjust_for_fq(self, holding, new_factor):
+        old_factor = holding['fq_factor']
+        _logger.info('old factor=%r' % old_factor)
+        if old_factor != 0.0 and new_factor > old_factor:
+            _logger.info('adjust for fq, before adjusting(shares=%r, cost=%r, fq_factor=%r).' % (holding['shares'], holding['cost'], old_factor))
+            ratio = new_factor / old_factor
+            holding['shares'] = holding['shares'] * ratio
+            holding['cost'] = holding['cost'] / ratio
+            _logger.info('adjust for fq, after adjusting(shares=%r, cost=%r, fq_factor=%r).' % (holding['shares'], holding['cost'], new_factor))
+        holding['fq_factor'] = new_factor
 
     def __buy_in(self, stock_code, price, holding):
         shares = holding['shares']
@@ -51,6 +59,7 @@ class DealStrategy(object):
         holding['shares'] += volume
         holding['cost'] = (cost * shares + price * volume) / (shares + volume)
         holding['fund'] -= price * volume
+
         _logger.info("buy in stock(%r), increase shares = %r." % (stock_code, volume))
         _logger.info("buy in stock(%r), total shares = %r, cost = %r, cash = %r" % (stock_code, holding['shares'], holding['cost'], holding['fund']))
         return volume

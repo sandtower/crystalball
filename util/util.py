@@ -1,11 +1,20 @@
+from constants import Constants
 from datetime import *
 import httplib2
+import tushare as ts
 
 class Util(object):
     @staticmethod
     def get_today():
         today = datetime.today()
         return today.strftime("%Y%m%d")
+
+    @staticmethod
+    def set_token():
+        token = ts.get_token()
+        if not token or len(token) == 0:
+            print 'set token'
+            ts.set_token(Constants.TOKEN)
 
     @staticmethod
     def http_get_content(url, headers=None, charset=None):

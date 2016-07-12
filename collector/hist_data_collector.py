@@ -13,10 +13,8 @@ class HistDataCollector(object):
         self.__stock_code = stock_code
         self.__db = db
         self.__collection = Collection(stock_code, self.__db)
-        self.__initial_fq_factor = 1.0
 
     def collect(self):
-        self.__get_initial_fq_factor()
         begin_date = self.__get_begin_date()
 
         end_date = Util.get_today()
@@ -39,27 +37,17 @@ class HistDataCollector(object):
             record = result.iloc[i].to_dict()
             if record['isOpen'] == 1:
                 fq_factor = record['accumAdjFactor']
-                self.__update_fq_factor(fq_factor)
-                ratio = fq_factor / self.__initial_fq_factor
-                record['fqPrice'] = record['closePrice'] * ratio
+                record['fqPrice'] = record['closePrice'] * fq_factor
+                _logger.info('close price(%r), fq price(%r)' % (record['closePrice'], record['fqPrice']))
                 self.__collection.insert_and_update('date', record['tradeDate'], **record)
-
-    def __get_initial_fq_factor(self):
-        first_record = self.__collection.find_one('date', descendent=False)
-        if first_record:
-            self.__initial_fq_factor = first_record['accumAdjFactor']
 
     def __get_begin_date(self):
         record = self.__collection.find_one('date')
         if record:
-            begin_date = ''.join(c for c in last_record['date'] if c != '-')
+            begin_date = ''.join(c for c in record['date'] if c != '-')
             return begin_date
         return None
 
-    def __update_fq_factor(self, fq_factor):
-        if self.__initial_fq_factor == 1.0:
-            self.__initial_fq_factor = fq_factor
-        
 if __name__ == '__main__':
     db = DB(Constants.HIST_DATA_DB_NAME)
     collector = HistDataCollector('600036', db)

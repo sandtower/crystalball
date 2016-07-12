@@ -7,6 +7,7 @@ from util.constants import Constants
 from util.logger import logger
 from util.mq_server import MqServer, MsgQueueException
 from util.dump_stack import dumpstacks 
+from util.util import Util
 
 from collections import OrderedDict
 from datetime import datetime, timedelta
@@ -22,12 +23,14 @@ class CrystalBall(object):
     DEFAULT_BAR_PERIOD = 30
     def __init__(self):
         self.__mq_server = None
-        self.__db = DB(Constants.HIST_DATA_DB_NAME)
+        self.__data_db = DB(Constants.HIST_DATA_DB_NAME)
+        self.__tick_db = DB(Constants.HIST_TICK_DB_NAME)
         self.__trading_strategy = None
         self.__hist_collector = None
         self.__tick_collector = None
 
     def start(self):
+        Util.set_token()
         self.__mq_server = MqServer()
         self.__mq_server.set_callback(self.__process)
         self.__mq_server.start()
@@ -53,23 +56,24 @@ class CrystalBall(object):
         buy_percent = content.get('buy_ratio', 0.5)
         sell_percent = content.get('sell_ratio', 1)
         
-        self.__hist_collector = HistDataCollector(stock_code, self.__db)
+        self.__hist_collector = HistDataCollector(stock_code, self.__data_db)
         self.__hist_collector.collect()
 
         context = {}
         history_data = self.__get_data(stock_code, start, end)
         context['history'] = {stock_code: history_data}
 
-        self.__tick_collector = HistTickCollector(stock_code)
+        self.__tick_collector = HistTickCollector(stock_code, self.__tick_db)
         self.__trading_strategy = StrategyFactory.create_strategy(strategy, self.__price_generator)
         deal_strategy = DealStrategy()
         sugestions = self.__trading_strategy.decide(context, stock_code, start)
+        _logger.info(sugestions)
         deals = deal_strategy.deal(context, stock_code, sugestions)
         _logger.info(deals)
         server.send(json.dumps(deals))
 
     def __get_data(self, stock_code, start, end):
-        collection = Collection(stock_code, self.__db)
+        collection = Collection(stock_code, self.__data_db)
         start_date = datetime.strptime(start, '%Y-%m-%d')
         end_date = datetime.strptime(end, '%Y-%m-%d')
         result = {}
