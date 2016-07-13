@@ -38,7 +38,7 @@ class DealStrategy(object):
         if old_factor != 0.0 and new_factor > old_factor:
             _logger.info('adjust for fq, before adjusting(shares=%r, cost=%r, fq_factor=%r).' % (holding['shares'], holding['cost'], old_factor))
             ratio = new_factor / old_factor
-            holding['shares'] = holding['shares'] * ratio
+            holding['shares'] = int(holding['shares'] * ratio)
             holding['cost'] = holding['cost'] / ratio
             _logger.info('adjust for fq, after adjusting(shares=%r, cost=%r, fq_factor=%r).' % (holding['shares'], holding['cost'], new_factor))
         holding['fq_factor'] = new_factor
