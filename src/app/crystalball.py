@@ -92,7 +92,6 @@ class CrystalBall(object):
         self.__mq_server.stop()
 
 if __name__ == "__main__":
-
     import signal
     signal.signal(signal.SIGUSR1, dumpstacks)
     predict_ball = CrystalBall()
