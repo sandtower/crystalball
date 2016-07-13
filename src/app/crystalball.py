@@ -2,10 +2,10 @@ from collector.hist_data_collector import HistDataCollector
 from collector.hist_tick_collector import HistTickCollector
 from strategy.strategy_factory import StrategyFactory
 from strategy.deal_strategy  import DealStrategy
+from channel.mq_server import MqServer, MsgQueueException
 from util.db import DB, Collection
 from util.constants import Constants
 from util.logger import logger
-from util.mq_server import MqServer, MsgQueueException
 from util.dump_stack import dumpstacks 
 from util.util import Util
 
