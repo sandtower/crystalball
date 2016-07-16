@@ -1,7 +1,8 @@
 from collector.hist_data_collector import HistDataCollector
 from collector.hist_tick_collector import HistTickCollector
-from strategy.strategy_factory import StrategyFactory
+from strategy.context import StockContext as Context 
 from strategy.deal_strategy  import DealStrategy
+from strategy.strategy_factory import StrategyFactory
 from channel.mq_server import MqServer, MsgQueueException
 from util.db import DB, Collection
 from util.constants import Constants
@@ -59,9 +60,9 @@ class CrystalBall(object):
         self.__hist_collector = HistDataCollector(stock_code, self.__data_db)
         self.__hist_collector.collect()
 
-        context = {}
+        context = Context()
         history_data = self.__get_data(stock_code, start, end)
-        context['history'] = {stock_code: history_data}
+        context.set_history_data(stock_code, history_data)
 
         self.__tick_collector = HistTickCollector(stock_code, self.__tick_db)
         self.__trading_strategy = StrategyFactory.create_strategy(strategy, self.__price_generator)

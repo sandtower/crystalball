@@ -1,3 +1,4 @@
+from context import StockContext as Context
 from strategy import BaseStrategy
 
 from collections import OrderedDict
@@ -13,7 +14,7 @@ class MacdStrategy(BaseStrategy):
         self.__price_generator = price_generator
 
     def decide(self, context, stock_code, start_date):
-        data = context['history'][stock_code]
+        data = context.get_history_data(stock_code)
         result = []
 
         prices = []
@@ -62,18 +63,17 @@ if __name__ == "__main__":
             price = last_price + (dirs[0] * ratio * last_price)
             print 'price =', price
             last_price = price
-            history_data[current.strftime('%Y-%m-%d')] = {'close': price, 'ma5': 12, 'turnover': 5.0}
+            history_data[current.strftime('%Y-%m-%d')] = {'close': price, 'ma5': 12, 'fqPrice': price, 'turnoverRate': 5.0, 'accumAdjFactor': 1.0}
             current += timedelta(days=1)
 
     history_data = {}
     generate_history_data(history_data, '2016-01-01', '2016-04-30')
 
     print history_data
-    stock_hist_data = {}
-    stock_hist_data['002657'] = OrderedDict(sorted(history_data.items(), key=lambda t: t[0]))
+    stock_hist_data = OrderedDict(sorted(history_data.items(), key=lambda t: t[0]))
 
-    context = {}
-    context['history'] = stock_hist_data
+    context = Context()
+    context.set_history_data('002657', stock_hist_data)
 
     macd = MacdStrategy(get_current_price)
     result = macd.decide(context, '002657', '2016-02-01')

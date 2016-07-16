@@ -2,6 +2,7 @@ from util.db import DB, Collection
 from util.constants import Constants
 from util.util import Util
 
+import numpy as np
 import tushare as ts
 import logging
 
@@ -13,6 +14,7 @@ class HistDataCollector(object):
         self.__stock_code = stock_code
         self.__db = db
         self.__collection = Collection(stock_code, self.__db)
+        self.__hist_close_price = []
 
     def collect(self):
         begin_date = self.__get_begin_date()
@@ -32,12 +34,17 @@ class HistDataCollector(object):
             _logger.warn('could get stock(%r) history data from tushare.' % self.__stock_code)
             return
 
-        #print result.iloc[0].to_dict()
         for i in range(len(result)):
             record = result.iloc[i].to_dict()
             if record['isOpen'] == 1:
                 fq_factor = record['accumAdjFactor']
                 record['fqPrice'] = record['closePrice'] * fq_factor
+                self.__hist_close_price.append(record['fqPrice'])
+
+                record['ma5'] = self.__get_ma5_price()
+                record['ma10'] = self.__get_ma10_price()
+                record['ma20'] = self.__get_ma20_price()
+
                 _logger.info('close price(%r), fq price(%r)' % (record['closePrice'], record['fqPrice']))
                 self.__collection.insert_and_update('date', record['tradeDate'], **record)
 
@@ -47,6 +54,24 @@ class HistDataCollector(object):
             begin_date = ''.join(c for c in record['date'] if c != '-')
             return begin_date
         return None
+
+    def __get_ma5_price(self):
+        if len(self.__hist_close_price) > 5:
+            return np.mean(self.__hist_close_price[-5:])
+        else:
+            return np.mean(self.__hist_close_price)
+         
+    def __get_ma10_price(self):
+        if len(self.__hist_close_price) > 10:
+            return np.mean(self.__hist_close_price[-10:])
+        else:
+            return np.mean(self.__hist_close_price)
+
+    def __get_ma20_price(self):
+        if len(self.__hist_close_price) > 20:
+            return np.mean(self.__hist_close_price[-20:])
+        else:
+            return np.mean(self.__hist_close_price)
 
 if __name__ == '__main__':
     db = DB(Constants.HIST_DATA_DB_NAME)
