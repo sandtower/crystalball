@@ -51,6 +51,7 @@ class TradingDays(object):
             weeks += 1
         return weeks
 
+    @staticmethod
     def is_trading_day(self, day):
         converted = to_date(day)
         if converted.weekday() in self.WEEKENDS:

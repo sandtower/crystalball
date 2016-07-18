@@ -45,7 +45,6 @@ class HistDataCollector(object):
                 record['ma10'] = self.__get_ma10_price()
                 record['ma20'] = self.__get_ma20_price()
 
-                _logger.info('close price(%r), fq price(%r)' % (record['closePrice'], record['fqPrice']))
                 self.__collection.insert_and_update('date', record['tradeDate'], **record)
 
     def __get_begin_date(self):
