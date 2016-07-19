@@ -16,10 +16,9 @@ class StockBasicGather(object):
     def __init__(self, db): 
         self.__db = db
         self.__scheduler = BlockingScheduler()
-        self.__scheduler.add_job(self.gather, 'cron', day_of_week='mon-fri', hour=22, minute=34)
+        self.__scheduler.add_job(self.gather, 'cron', day_of_week='mon-fri', hour=23, minute=50)
 
     def start(self):
-        print 'start,,,,,,,,,,,,,,'
         self.__scheduler.start()
 
     def gather(self):
@@ -38,8 +37,8 @@ class StockBasicGather(object):
         stock_infos = collection.find()
         stock_list = []
         for stock_info in stock_infos:
-            print stock_info
             stock_list.append(stock_info['code'])
+            break
         return stock_list
 
     def stop(self):

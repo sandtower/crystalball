@@ -72,6 +72,9 @@ class HistDataCollector(object):
         else:
             return np.mean(self.__hist_close_price)
 
+    def __get_history_close_price(self):
+        self.__collection.find
+
 if __name__ == '__main__':
     db = DB(Constants.HIST_DATA_DB_NAME)
     collector = HistDataCollector('600036', db)
