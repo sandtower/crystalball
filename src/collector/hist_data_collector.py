@@ -2,6 +2,7 @@ from util.db import DB, Collection
 from util.constants import Constants
 from util.util import Util
 
+from datetime import datetime, timedelta
 import numpy as np
 import tushare as ts
 import logging
@@ -33,6 +34,9 @@ class HistDataCollector(object):
         if result is None:
             _logger.warn('could get stock(%r) history data from tushare.' % self.__stock_code)
             return
+
+        if begin_date:
+            self.__get_history_close_price(begin_date)
 
         for i in range(len(result)):
             record = result.iloc[i].to_dict()
@@ -72,10 +76,14 @@ class HistDataCollector(object):
         else:
             return np.mean(self.__hist_close_price)
 
-    def __get_history_close_price(self):
-        self.__collection.find
+    def __get_history_close_price(self, date_str):
+        date = datetime.strptime(date_str, '%Y%m%d') - timedelta(days=40)
+        conds = [('date', 'gt', date.strftime('%Y-%m-%d'))]
+        result = self.__collection.findand(conds)
+        for each in result:
+            self.__hist_close_price.append(each['fqPrice'])
 
 if __name__ == '__main__':
-    db = DB(Constants.HIST_DATA_DB_NAME)
+    db = DB(Constants.TEST_DATA_DB_NAME)
     collector = HistDataCollector('600036', db)
     collector.collect()

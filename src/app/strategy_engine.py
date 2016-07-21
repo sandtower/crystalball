@@ -27,7 +27,6 @@ class CrystalBall(object):
         self.__data_db = DB(Constants.HIST_DATA_DB_NAME)
         self.__tick_db = DB(Constants.HIST_TICK_DB_NAME)
         self.__trading_strategy = None
-        self.__hist_collector = None
         self.__tick_collector = None
 
     def start(self):
@@ -57,9 +56,6 @@ class CrystalBall(object):
         buy_percent = content.get('buy_ratio', 0.5)
         sell_percent = content.get('sell_ratio', 1)
         
-        self.__hist_collector = HistDataCollector(stock_code, self.__data_db)
-        self.__hist_collector.collect()
-
         context = Context()
         history_data = self.__get_data(stock_code, start, end)
         context.set_history_data(stock_code, history_data)
@@ -97,5 +93,8 @@ if __name__ == "__main__":
     signal.signal(signal.SIGUSR1, dumpstacks)
     predict_ball = CrystalBall()
     predict_ball.start()
-    time.sleep(10)
+
+    while True:
+        time.sleep(1)
+
     predict_ball.stop()

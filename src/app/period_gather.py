@@ -16,21 +16,21 @@ class StockBasicGather(object):
     def __init__(self, db): 
         self.__db = db
         self.__scheduler = BlockingScheduler()
-        self.__scheduler.add_job(self.gather, 'cron', day_of_week='mon-fri', hour=23, minute=50)
+        self.__scheduler.add_job(self.gather, 'cron', day_of_week='mon-fri', hour=15, minute=30)
 
     def start(self):
         self.__scheduler.start()
 
     def gather(self):
-        print 'gather..........., 0000000'
-        StockBasicCollector(self.__db).collect()
-        print 'gather..........., 1111111'
-    
-        stock_list = self.__get_stock_list()
-        for stock in stock_list:
-            print 'collect stock hist data', stock
-            HistDataCollector(stock, self.__db).collect()
-        print 'gather..........., end'
+        _logger.info('period gather stock basic and history data, begin.....')
+        try:
+            StockBasicCollector(self.__db).collect()
+            stock_list = self.__get_stock_list()
+            for stock in stock_list:
+                HistDataCollector(stock, self.__db).collect()
+        except Exception as e:
+            _logger.exception(e)
+        _logger.info('period gather stock basic and history data, end.....')
     
     def __get_stock_list(self):
         collection = Collection(StockBasicCollector.BASIC_COLLECTION, self.__db)
@@ -38,7 +38,6 @@ class StockBasicGather(object):
         stock_list = []
         for stock_info in stock_infos:
             stock_list.append(stock_info['code'])
-            break
         return stock_list
 
     def stop(self):

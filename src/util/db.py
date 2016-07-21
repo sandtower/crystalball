@@ -90,7 +90,7 @@ class Collection(object):
         else:
             cursor = self.__collection.find().sort(index, 1).limit(1)
         if cursor and cursor.count() > 0:
-            _logger.info('find last one record, record info=%r' % cursor[0])
+            #_logger.info('find last one record, record info=%r' % cursor[0])
             return cursor[0]
         return None
         
