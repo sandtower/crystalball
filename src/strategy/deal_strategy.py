@@ -25,11 +25,14 @@ class DealStrategy(object):
             if deal_type == 1:
                 volume = self.__buy_in(stock_code, price, holding)
                 if volume:
-                    result.append({'volume': volume, 'price': price, 'date': date})
-            elif deal_type == 2:
+                    self.__append_result(result, volume, price, decision, holding)
+                    continue
+            if deal_type == 2:
                 volume = self.__sell_out(stock_code, price, holding)
                 if volume:
-                    result.append({'volume': -volume, 'price': price, 'date': date})
+                    self.__append_result(result, -volume, price, decision, holding)
+                    continue
+            self.__append_result(result, 0, price, decision, holding)
         return result
 
     def __adjust_for_fq(self, holding, new_factor):
@@ -49,8 +52,9 @@ class DealStrategy(object):
         fund = holding['fund']
 
         volume = 0
-        if fund >= self.__init_fund * self.__buy_percent:
-            volume = int((self.__init_fund * self.__buy_percent) / (price * 100)) * 100
+        total_assets = cost * shares + fund
+        if fund >= total_assets * self.__buy_percent:
+            volume = int((total_assets * self.__buy_percent) / (price * 100)) * 100
         else:
             volume = int(fund / (price * 100)) * 100
         if volume == 0:
@@ -74,10 +78,11 @@ class DealStrategy(object):
 
         volume = 0
         market_cap = cost * shares
-        if market_cap <= ((market_cap + fund) * self.__sell_percent):
+        total_assets = market_cap + fund
+        if market_cap <= (total_assets * self.__sell_percent):
             volume = shares
         else:
-            volume = int((market_cap + fund) * self.__sell_percent / (price * 100)) * 100
+            volume = int(total_assets * self.__sell_percent / (price * 100)) * 100
         
         holding['shares'] -= volume
         if volume == shares:
@@ -88,6 +93,14 @@ class DealStrategy(object):
         _logger.info("sell out stock(%r), decrease shares = %r." % (stock_code, volume))
         _logger.info("sell out stock(%r), total shares = %r, cost = %r, cash = %r" % (stock_code, holding['shares'], holding['cost'], holding['fund']))
         return volume
+
+    def __append_result(self, result, order_shares, order_price, decision, holding):
+        assets = self.__get_total_assets(holding)
+        record = {'orderShares': order_shares, 'orderPrice': order_price, 'totalShares': holding['shares'], 'costPrice': holding['cost'], 'totalAssets': assets, 'openPrice': decision['open'], 'closePrice': decision['close'], 'highestPrice': decision['high'], 'lowestPrice': decision['low'], 'date': decision['date']}
+        result.append(record)
+
+    def __get_total_assets(self, holding):
+        return holding['shares'] * holding['cost'] + holding['fund']
 
 if __name__ == "__main__":
     strategy = DealStrategy()

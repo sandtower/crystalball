@@ -30,20 +30,33 @@ class MacdStrategy(BaseStrategy):
             current_price = self.__price_generator(item[0])
             fq_factor = item[1]['accumAdjFactor']
             turnover = item[1]['turnoverRate']
+            open = item[1]['openPrice']
+            close = item[1]['closePrice']
+            high = item[1]['highestPrice']
+            low = item[1]['lowestPrice']
+
             _logger.info("date = %r, macd = %r, current price = %r" % (item[0], macd, current_price)) 
 
             if macd < 0:
-                result.append({'date': item[0], 'deal': self.SELL_OUT, 'price': current_price, 'fq_factor': fq_factor})
+                self.__append_result(result, item[0], self.SELL_OUT, current_price, fq_factor, open, close, high, low, turnover)
             elif macd > 0 and turnover > 0.05:
-                result.append({'date': item[0], 'deal': self.BUY_IN, 'price': current_price, 'fq_factor': fq_factor})
+                self.__append_result(result, item[0], self.BUY_IN, current_price, fq_factor, open, close, high, low, turnover)
             else:
-                result.append({'date': item[0], 'deal': self.DO_NOTHING, 'price': None, 'fq_factor': fq_factor})
+                self.__append_result(result, item[0], self.DO_NOTHING, current_price, fq_factor, open, close, high, low, turnover)
         return result
 
     def __macd(self, prices, fastperiod=12, slowperiod=26, signalperiod=9):
         macd, signal, hist = talib.MACD(numpy.array(prices), fastperiod=fastperiod, 
                                         slowperiod=slowperiod, signalperiod=signalperiod)
         return macd[-1] - signal[-1]
+
+    def __append_result(self, result, date, deal_type, deal_price, fq_factor, open_price, close_price, high_price, low_price, turnover_rate):
+        record = {'date': date, 'deal': deal_type,
+                  'price': deal_price, 'fq_factor': fq_factor,
+                  'open': open_price, 'close': close_price,
+                  'high': high_price, 'low': low_price,
+                  'turnover': turnover_rate}
+        result.append(record)
 
 if __name__ == "__main__":
     def get_current_price(date):

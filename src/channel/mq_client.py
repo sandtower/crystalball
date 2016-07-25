@@ -68,8 +68,6 @@ if __name__ == "__main__":
     total = 0
     for deal in json.loads(msg):
         print deal
-        total -= float(deal['volume']) * float(deal['price'])
-        print total
     print total
     time.sleep(10)
     mq.stop()
