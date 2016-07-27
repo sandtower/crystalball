@@ -43,14 +43,15 @@ class HistoryPlot(object):
 
         ind = np.arange(len(self.__datas))
         share_ax = asset_ax.twinx()
-        asset_ax.bar(ind, self.__get_asset_datas(), width=0.4, color='y', label='asset')
+        asset_ax.plot(ind, self.__get_asset_datas(), '-', color='blue', label='asset')
         asset_ax.set_ylabel('total asset')
 
-        share_ax.bar(ind+0.4, self.__get_shares_datas(), width=0.4, color='r', label='shares')
+        share_ax.plot(ind, self.__get_shares_datas(), '-', color='magenta', label='shares')
         share_ax.set_ylabel('total share')
         asset_ax.xaxis_date()
         asset_ax.autoscale_view()
         mplot.setp(mplot.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
+        asset_ax.grid(True)
 
         mplot.savefig(file_name)
 

@@ -95,12 +95,12 @@ class DealStrategy(object):
         return volume
 
     def __append_result(self, result, order_shares, order_price, decision, holding):
-        assets = self.__get_total_assets(holding)
+        assets = self.__get_total_assets(holding, order_price)
         record = {'orderShares': order_shares, 'orderPrice': order_price, 'totalShares': holding['shares'], 'costPrice': holding['cost'], 'totalAssets': assets, 'openPrice': decision['open'], 'closePrice': decision['close'], 'highestPrice': decision['high'], 'lowestPrice': decision['low'], 'date': decision['date']}
         result.append(record)
 
-    def __get_total_assets(self, holding):
-        return holding['shares'] * holding['cost'] + holding['fund']
+    def __get_total_assets(self, holding, current_price):
+        return holding['shares'] * current_price + holding['fund']
 
 if __name__ == "__main__":
     strategy = DealStrategy()
