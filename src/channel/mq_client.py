@@ -56,6 +56,7 @@ class MsgQueue(threading.Thread):
         try:
             return self.__socket.recv()
         except zmq.ZMQError as e:
+            _logger.exception(e)
             raise MsgQueueException("exception when connecting to server")
 
 if __name__ == "__main__":
