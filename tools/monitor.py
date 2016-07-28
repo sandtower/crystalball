@@ -10,12 +10,14 @@ def monitor_process(key_word, cmd):
         return
 
     sys.stderr.write('process[%s] is lost, run [%s]\n' % (key_word, cmd))
-    subprocess.call(cmd, shell=True)
+    subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
 
 def main():
     while True:
         cmd = '/home/crystalball/tools/start.sh'
         monitor_process("period_gather", cmd)
+        monitor_process("strategy_engine", cmd)
+        monitor_process("backtest", cmd)
         time.sleep(10)
 
 if __name__ == "__main__":

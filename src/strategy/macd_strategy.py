@@ -15,6 +15,9 @@ class MacdStrategy(BaseStrategy):
 
     def decide(self, context, stock_code, start_date):
         data = context.get_history_data(stock_code)
+        if not data:
+            return []
+
         result = []
 
         prices = []

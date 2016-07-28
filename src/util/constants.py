@@ -4,6 +4,8 @@ class Constants(object):
     TEST_DATA_DB_NAME = 'test_data'
     TEST_TICK_DB_NAME = 'test_tick'
 
+    BASIC_COLLECTION = 'stock_basic'
+
     CURRENT_BASIC_QUERY_URL = 'http://qt.gtimg.cn/q=%s'
     REALTIME_BASIC_QUERY_URL = 'http://140.207.127.33/q=%s'
     CURRENT_FLOW_QUERY_URL = 'http://qt.gtimg.cn/q=ff_%s'

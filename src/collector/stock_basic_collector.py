@@ -7,10 +7,9 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class StockBasicCollector(object):
-    BASIC_COLLECTION = 'stock_basic'
     def __init__(self, db):
         self.__db = db
-        self.__collection = Collection(self.BASIC_COLLECTION, self.__db)
+        self.__collection = Collection(Constants.BASIC_COLLECTION, self.__db)
 
     def collect(self):
         _logger.info('collect stock basic info, begin.....')

@@ -76,7 +76,7 @@ class CrystalBall(object):
         result = {}
         for record in collection.find().sort('date', pymongo.ASCENDING):
             record_date = datetime.strptime(record['date'], '%Y-%m-%d')
-            if record_date >= (start_date - timedelta(days=self.DEFAULT_BAR_PERIOD)): 
+            if record_date >= (start_date - timedelta(days=self.DEFAULT_BAR_PERIOD)) and record_date <= end_date : 
                 result[record['date']] = record
             if record_date > end_date:
                 break
