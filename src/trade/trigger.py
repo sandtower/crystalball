@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
-from threading import Timer
+from usrm.manager import Manager
+from trader import Trader
+from apscheduler.schedulers.blocking import BlockingScheduler
 from channel.mq_client import MsgQueue, MsgQueueException
 
 class Trigger:
@@ -8,33 +10,41 @@ class Trigger:
     @abstractmethod
     def start(self):
         pass
+
     @abstractmethod
     def stop(self):
         pass
 
-
 class TimeTrigger(Trigger):
-    def __init__(self, interval):
-        self.__interval = interval
+    def __init__(self, user_manager, trade_timer_interval):
+        self.__trade_interval = trade_timer_interval
+        self.__usr_manager = user_manager
+        self.__scheduler = BlockingScheduler(daemonic = False)
         self.__mq = MsgQueue()
-        self.__usr_manager = None
 
-    def __send_request_strategy(self):
-        pass
+    def __start_trade_for_user(self, user):
+        print("Start trade for %s" % user["UserName"])
+        trader = Trader(user)
+        trader.start_trade()
+        print("End the trade for %s" % user["UserName"])
 
-    def __timer_out_process(self):
-        pass
-
-    def __start_timer(self):
-       t =  Timer(5, self.__timer_out_process)
-       t.start()
+    def __trade_job(self):
+        users = self.__usr_manager.get_all_user()
+        for user in users:
+            self.__start_trade_for_user(user, self.__mq)
 
     def start(self):
-       self.__start_timer()
-       pass
+        self.__scheduler.add_job(self.__trade_job, 'interval', hours = self.__trade_interval)
+        self.__scheduler.start()
+        self.__mq.start()
 
     def stop(self):
-        self.__mq.stop()
-        pass
+        self.__scheduler.shutdown()
+        self.__stop()
+
+
+if __name__ == "__main__":
+    pass
+
 
 

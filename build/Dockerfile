@@ -13,8 +13,11 @@ RUN pip install --upgrade pip \
     && pip install  tornado \
     && pip install lxml \
     && pip install Pandas \
-    && pip install tushare
+    && pip install tushare \
+    && pip install apscheduler
 
-#ADD ../../sesame_bak /project/sesame
+ADD src /home/craystallball/src
 
-#CMD echo hello world
+WORKDIR /home/craystallball/src
+
+CMD python -m app.strategy_engine.py
