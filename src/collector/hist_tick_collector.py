@@ -15,7 +15,7 @@ class HistTickCollector(object):
     def collect(self, date):
         df = ts.get_tick_data(self.__stock_code, date)
         result = self.__parse_dataframe(df)
-        print result
+        #print result
         self.__collection.insert_and_update('date', date, **result)
 
     def __parse_dataframe(self, df):
@@ -27,11 +27,14 @@ class HistTickCollector(object):
         return OrderedDict(sorted(result.items(), key= lambda t: t[0]))
 
     def get_middle_price(self, date):
-        df = ts.get_tick_data(self.__stock_code, date)
-        if len(df) > 1:
-            data = self.__get_middle_data(df)
-            _logger.info("get date(%r) middle, time(%r), price(%r)" % (date, data[0], data[1]))
-            return data[1]
+        try:
+            df = ts.get_tick_data(self.__stock_code, date=date, retry_count=5)
+            if len(df) > 1:
+                data = self.__get_middle_data(df)
+                _logger.info("get stock(%r), date(%r) middle, time(%r), price(%r)" % (self.__stock_code, date, data[0], data[1]))
+                return data[1]
+        except Exception as e:
+            _logger.exception(e)
         return None
 
     def __get_middle_data(self, df):

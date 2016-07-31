@@ -13,11 +13,13 @@ def monitor_process(key_word, cmd):
     subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
 
 def main():
+    period_gather_cmd = '/home/crystalball/tools/period_gather.sh'
+    strategy_engine_cmd = '/home/crystalball/tools/strategy_engine.sh'
+    backtest_cmd = '/home/crystalball/tools/backtest.sh'
     while True:
-        cmd = '/home/crystalball/tools/start.sh'
-        monitor_process("period_gather", cmd)
-        monitor_process("strategy_engine", cmd)
-        monitor_process("backtest", cmd)
+        monitor_process("period_gather", period_gather_cmd)
+        monitor_process("strategy_engine", strategy_engine_cmd)
+        monitor_process("backtest", backtest_cmd)
         time.sleep(10)
 
 if __name__ == "__main__":

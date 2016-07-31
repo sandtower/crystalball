@@ -6,7 +6,7 @@ from strategy.strategy_factory import StrategyFactory
 from channel.mq_server import MqServer, MsgQueueException
 from util.db import DB, Collection
 from util.constants import Constants
-from util.logger import logger
+from util.logger import setup_logger
 from util.dump_stack import dumpstacks 
 from util.util import Util
 
@@ -17,9 +17,10 @@ import logging
 import pymongo
 import time
 
+setup_logger('strategy_engine.log')
 _logger = logging.getLogger(__name__)
 
-class CrystalBall(object):
+class StrategyEngine(object):
     DEFAULT_STRATEGY = 'macd_strategy'
     DEFAULT_BAR_PERIOD = 30
     def __init__(self):
@@ -91,10 +92,10 @@ class CrystalBall(object):
 if __name__ == "__main__":
     import signal
     signal.signal(signal.SIGUSR1, dumpstacks)
-    predict_ball = CrystalBall()
-    predict_ball.start()
+    engine = StrategyEngine()
+    engine.start()
 
     while True:
         time.sleep(1)
 
-    predict_ball.stop()
+    engine.stop()

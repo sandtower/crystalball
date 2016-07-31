@@ -3,13 +3,14 @@ from collector.stock_basic_collector import StockBasicCollector
 
 from util.constants import Constants
 from util.db import DB, Collection
-from util.logger import logger
+from util.logger import setup_logger
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 import time
 
 import logging
 
+setup_logger('period_gather.log')
 _logger = logging.getLogger(__name__)
 
 class StockBasicGather(object):
@@ -33,7 +34,7 @@ class StockBasicGather(object):
         _logger.info('period gather stock basic and history data, end.....')
     
     def __get_stock_list(self):
-        collection = Collection(StockBasicCollector.BASIC_COLLECTION, self.__db)
+        collection = Collection(Constants.BASIC_COLLECTION, self.__db)
         stock_infos = collection.find()
         stock_list = []
         for stock_info in stock_infos:

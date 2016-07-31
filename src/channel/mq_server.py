@@ -1,8 +1,11 @@
 import zmq
 import threading
 import time
+import logging
 
 from zmq.eventloop import ioloop
+
+_logger = logging.getLogger(__name__)
 
 class MsgQueueException(Exception):
     def __init__(self, msg):
@@ -40,11 +43,13 @@ class MqServer(threading.Thread):
         if self.__cb:
             try:
                 msg = socket.recv()
-                print msg
+                #print msg
                 self.__cb(msg, self)
             except zmq.ZMQError:
                 self.__socket.close()
                 self.__initialize()
+            except Exception as e:
+                _logger.exception(e)
 
     def stop(self):
         self.__stopped.set()
@@ -55,10 +60,12 @@ class MqServer(threading.Thread):
             self.__socket.send(msg)
         except zmq.ZMQError:
             raise MsgQueueException("send to request failed.")
+        except Exception as e:
+            _logger.exception(e)
 
 if __name__ == "__main__":
     def test(msg, server):
-        print msg
+        #print msg
         server.send(msg)
         
     mq_server = MqServer()

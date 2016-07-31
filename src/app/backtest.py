@@ -1,14 +1,16 @@
 from channel.mq_client import MsgQueue
 from util.constants import Constants
 from util.db import DB, Collection
+from util.dump_stack import dumpstacks 
+from util.logger import setup_logger
 from util.plot import HistoryPlot as Plot
-from util.logger import logger
 
 from datetime import datetime
 import json
 import logging
 import time
 
+setup_logger('backtest.log')
 _logger = logging.getLogger(__name__)
 
 class SingleBackTest(object):
@@ -53,12 +55,14 @@ class BatchBackTest(object):
         file = open(filename, 'w')
         try:
             stock_list = self.__get_stock_list()
+            _logger.info(stock_list)
             for stock in stock_list:
                 roi = self.__iterate_test(stock, start, end)
                 if roi:
                     result = '%s, %f' % (stock, roi)
                     file.write(result)
                     file.write('\n')
+                    file.flush()
         except Exception as e:
             _logger.exception(e)
 
@@ -85,10 +89,13 @@ class BatchBackTest(object):
         return stock_list
 
 if __name__ == "__main__":
-    single_test = SingleBackTest('300511') 
-    single_test.start()
-    single_test.test('2015-01-01', '2015-12-31')
-    single_test.stop()
+    import signal
+    signal.signal(signal.SIGUSR1, dumpstacks)
+
+    #single_test = SingleBackTest('000918') 
+    #single_test.start()
+    #single_test.test('2015-01-01', '2015-12-31')
+    #single_test.stop()
 
     db = DB(Constants.HIST_DATA_DB_NAME)
     batch_test = BatchBackTest(db)
