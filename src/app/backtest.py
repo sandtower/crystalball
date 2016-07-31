@@ -71,9 +71,11 @@ class BatchBackTest(object):
     def __iterate_test(self, stock_code, start, end):
         stock_info = {'stock': stock_code, 'start': start, 'end': end}
         self.__mq.send(json.dumps(stock_info))
+        _logger.info(stock_info)
         time.sleep(1)
         msg = self.__mq.recv()
         datas = json.loads(msg)
+        _logger.info(datas)
         if len(datas) > 2:
             initial_asset = datas[0]['totalAssets']
             final_asset = datas[-1]['totalAssets']

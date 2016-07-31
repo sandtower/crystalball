@@ -17,7 +17,7 @@ class StockBasicGather(object):
     def __init__(self, db): 
         self.__db = db
         self.__scheduler = BlockingScheduler()
-        self.__scheduler.add_job(self.gather, 'cron', day_of_week='mon-fri', hour=16, minute=00)
+        self.__scheduler.add_job(self.gather, 'cron', day_of_week='mon-fri', hour=16, minute=30)
 
     def start(self):
         self.__scheduler.start()
