@@ -1,23 +1,23 @@
 from usrm.manager import Manager
-from util.db import DB, Collection
+from util.db import DB
 from trade.trigger import Trigger, TimeTrigger
 
 class Controller(object):
     USER_DB_NAME = "user"
-    TRIGGER_INTERVAL = 5
+    TRIGGER_INTERVAL = 3600
 
     def __init__(self):
         self.__user_db = DB(self.USER_DB_NAME)
         self.__usr_manager = Manager(self.__user_db)
         self.__trigger = TimeTrigger(self.TRIGGER_INTERVAL)
+        self.__stop = threading.Event()
 
     def start(self):
         self.__trigger.start()
-        self.__usr_manager.start()
 
     def stop(self):
         self.__trigger.stop()
-        self.__usr_manager.stop()
+        self.__stop.set()
 
 
 
