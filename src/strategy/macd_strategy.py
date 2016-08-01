@@ -44,11 +44,11 @@ class MacdStrategy(BaseStrategy):
                 continue
 
             if macd < 0:
-                self.__append_result(result, item[0], self.SELL_OUT, current_price, fq_factor, open, close, high, low, turnover)
+                self.__append_result(result, item[0], self.SELL_OUT, current_price, fq_factor, open, close, high, low, turnover, fq_price)
             elif macd > 0 and turnover > 0.05:
-                self.__append_result(result, item[0], self.BUY_IN, current_price, fq_factor, open, close, high, low, turnover)
+                self.__append_result(result, item[0], self.BUY_IN, current_price, fq_factor, open, close, high, low, turnover, fq_price)
             else:
-                self.__append_result(result, item[0], self.DO_NOTHING, current_price, fq_factor, open, close, high, low, turnover)
+                self.__append_result(result, item[0], self.DO_NOTHING, current_price, fq_factor, open, close, high, low, turnover, fq_price)
         return result
 
     def __macd(self, prices, fastperiod=12, slowperiod=26, signalperiod=9):
@@ -56,12 +56,13 @@ class MacdStrategy(BaseStrategy):
                                         slowperiod=slowperiod, signalperiod=signalperiod)
         return macd[-1] - signal[-1]
 
-    def __append_result(self, result, date, deal_type, deal_price, fq_factor, open_price, close_price, high_price, low_price, turnover_rate):
+    def __append_result(self, result, date, deal_type, deal_price, fq_factor, open_price, close_price, high_price, low_price, turnover_rate, fq_price):
         record = {'date': date, 'deal': deal_type,
                   'price': deal_price, 'fq_factor': fq_factor,
                   'open': open_price, 'close': close_price,
                   'high': high_price, 'low': low_price,
-                  'turnover': turnover_rate}
+                  'turnover': turnover_rate,
+                  'fq_price': fq_price}
         result.append(record)
 
 if __name__ == "__main__":

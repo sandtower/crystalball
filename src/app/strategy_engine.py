@@ -5,6 +5,7 @@ from strategy.deal_strategy  import DealStrategy
 from strategy.strategy_factory import StrategyFactory
 from channel.mq_server import MqServer, MsgQueueException
 from util.db import DB, Collection
+from util.config import Config
 from util.constants import Constants
 from util.logger import setup_logger
 from util.dump_stack import dumpstacks 
@@ -61,7 +62,7 @@ class StrategyEngine(object):
         history_data = self.__get_data(stock_code, start, end)
         context.set_history_data(stock_code, history_data)
 
-        self.__tick_collector = HistTickCollector(stock_code, self.__tick_db)
+        self.__tick_collector = HistTickCollector(stock_code, self.__tick_db, Config())
         self.__trading_strategy = StrategyFactory.create_strategy(strategy, self.__price_generator)
         deal_strategy = DealStrategy()
         sugestions = self.__trading_strategy.decide(context, stock_code, start)

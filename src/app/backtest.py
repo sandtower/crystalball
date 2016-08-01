@@ -57,9 +57,9 @@ class BatchBackTest(object):
             stock_list = self.__get_stock_list()
             _logger.info(stock_list)
             for stock in stock_list:
-                roi = self.__iterate_test(stock, start, end)
+                roi, fix = self.__iterate_test(stock, start, end)
                 if roi:
-                    result = '%s, %f' % (stock, roi)
+                    result = '%s, %f, %f' % (stock, roi, fix)
                     file.write(result)
                     file.write('\n')
                     file.flush()
@@ -79,8 +79,14 @@ class BatchBackTest(object):
         if len(datas) > 2:
             initial_asset = datas[0]['totalAssets']
             final_asset = datas[-1]['totalAssets']
-            return float('%0.3f' % (float(final_asset - initial_asset) / initial_asset))
-        return None
+            roi = float('%0.3f' % (float(final_asset - initial_asset) / initial_asset))
+
+            initial_price = datas[0]['fqPrice']
+            final_price = datas[-1]['fqPrice']
+            fix = float('%0.3f' % ((final_price - initial_price) / initial_price))
+            return roi, fix
+            
+        return None, None
 
     def __get_stock_list(self):
         collection = Collection(Constants.BASIC_COLLECTION, self.__db)

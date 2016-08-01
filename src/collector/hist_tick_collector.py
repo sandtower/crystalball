@@ -6,8 +6,6 @@ import tushare as ts
 from collections import OrderedDict
 import json
 import os
-from util.logger import setup_logger
-setup_logger('test.log')
 
 import logging
 
@@ -26,7 +24,7 @@ class HistTickCollector(object):
         self.__setup()
 
     def __setup(self):
-        root_dir = config.get_config(self.SECTION_NAME, self.ITEM_NAME)
+        root_dir = self.__config.get_config(self.SECTION_NAME, self.ITEM_NAME)
         if not root_dir:
             _logger.warn('hist tick collector get config failed.')
             return
@@ -62,7 +60,6 @@ class HistTickCollector(object):
         try:
             df = ts.get_tick_data(self.__stock_code, date, retry_count=5)
             result = self.__parse_dataframe(df)
-            print result
             self.__save_to_file(date, result)
             return result
         except Exception as e:
@@ -92,7 +89,7 @@ class HistTickCollector(object):
     def __get_middle_data(self, datas):
         middle = len(datas) / 2
         middle_data = datas.items()[middle][1]
-        print middle_data
+
         price = middle_data['price']
         volume = middle_data['volume']
         time = middle_data['time']

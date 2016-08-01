@@ -37,7 +37,7 @@ class DealStrategy(object):
 
     def __adjust_for_fq(self, holding, new_factor):
         old_factor = holding['fq_factor']
-        _logger.info('old factor=%r' % old_factor)
+        #_logger.info('old factor=%r' % old_factor)
         if old_factor != 0.0 and new_factor > old_factor:
             _logger.info('adjust for fq, before adjusting(shares=%r, cost=%r, fq_factor=%r).' % (holding['shares'], holding['cost'], old_factor))
             ratio = new_factor / old_factor
@@ -96,7 +96,7 @@ class DealStrategy(object):
 
     def __append_result(self, result, order_shares, order_price, decision, holding):
         assets = self.__get_total_assets(holding, order_price)
-        record = {'orderShares': order_shares, 'orderPrice': order_price, 'totalShares': holding['shares'], 'costPrice': holding['cost'], 'totalAssets': assets, 'openPrice': decision['open'], 'closePrice': decision['close'], 'highestPrice': decision['high'], 'lowestPrice': decision['low'], 'date': decision['date']}
+        record = {'orderShares': order_shares, 'orderPrice': order_price, 'totalShares': holding['shares'], 'costPrice': holding['cost'], 'totalAssets': assets, 'openPrice': decision['open'], 'closePrice': decision['close'], 'highestPrice': decision['high'], 'lowestPrice': decision['low'], 'date': decision['date'], 'fqPrice': decision['fq_price']}
         result.append(record)
 
     def __get_total_assets(self, holding, current_price):
