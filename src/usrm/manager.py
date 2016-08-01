@@ -131,7 +131,6 @@ class Manager(object):
 
     def get_all_user(self):
         users = []
-
         for user in self.__users.find():
             print user
             users.append(user)
@@ -196,8 +195,3 @@ if __name__ == "__main__":
 
     manager.delete_user(user_name)
     manager.delete_all_fake(fake_user)
-
-
-
-
-

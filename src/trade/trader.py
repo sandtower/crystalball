@@ -32,49 +32,66 @@ import easytrader as seller_trader
 
 class Trader(object):
     def __init__(self, user, mq):
-    	self.__user = user
-    	self.__user_of_seller = None
-    	self.__mq = mq
+    	  self.__user = user
+    	  self.__user_of_seller = None
+    	  self.__mq = mq
 
     def start_trade(self):
         strategy = self.__get_trade_strategy()
         if strategy is not None:
-        	self.__do_trade(strategy)
+        	  self.__do_trade(strategy)
+
+    def __encode_stock_postion_info(self, postion):
+        stock = {}
+        stock['stock'] = po['stock_code']
+        stock['shares'] = po['current_amount']
+        stock['cost'] = po['cost_price']
+        return stock
+        stocks.append(stock_code)
 
     def __encode_strategy_request_msg(self):
-    	pass
+        req_msg = {}
+        req_msg['user'] = self.__user['UserName']
+        positons = self.__user['Postion']
+
+        stocks = []
+        for po in positons:
+          stock = self.__encode_stock_postion_info(po)
+          stocks.append(stock)
+
+        req_msg['stock_info'] = stocks
+        req_msg['fund'] = self.__user['Balance']['enable_balance']
+        return req_msg
 
     def __get_trade_strategy(self):
-    	msg = self.__encode_strategy_request_msg()
-    	self.__mq.send(json.dumps(msg))
-    	rsp = self.__mq.recv()
+    	  msg = self.__encode_strategy_request_msg()
+    	  self.__mq.send(json.dumps(msg))
+    	  rsp = self.__mq.recv()
         strategy = json.loads(rsp)
         return strategy
 
     def __trade_one_stock(self, deal_info):
-    	stock_code = deal_info['stock']
-    	price = deal_info['price']
-    	volume = deal_info['volume']
-    	action = deal_info['deal']
+    	  stock_code = deal_info['stock']
+    	  price = deal_info['price']
+    	  volume = deal_info['volume']
+    	  action = deal_info['deal']
 
-    	if action == 'buy':
-    		self.__user_of_seller.buy(stock_code, price, volume)
-    	elif action == 'sell':
-    		self.__user_of_seller.sell(stock_code, price, volume)
-    	else:
-    		print('Invalid deal code %s' % action
+    	  if action == 'buy':
+    		    self.__user_of_seller.buy(stock_code, price, volume)
+    	  elif action == 'sell':
+    		    self.__user_of_seller.sell(stock_code, price, volume)
+    	  else:
+    		    print('Invalid deal code %s' % action)
 
     def __do_trade(self, strategy):
-    	if strategy['result'] != 'ok':
-    		return
+    	  if strategy['result'] != 'ok':
+    		    return
 
-    	user_of_seller = self.__user.login_stock_seller()
-    	self.__user_of_seller = user_of_seller
-    	deals = strategy["deal_info"]
-    	for deal in deals:
-    		self.__trade_one_stock(deal)
+    	  user_of_seller = self.__user.login_stock_seller()
+    	  self.__user_of_seller = user_of_seller
+    	  deals = strategy["deal_info"]
+    	  for deal in deals:
+    		    self.__trade_one_stock(deal)
 
 if __name__ == "__main__":
-	pass
-
-
+	  pass

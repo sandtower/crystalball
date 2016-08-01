@@ -24,14 +24,14 @@ class TimeTrigger(Trigger):
 
     def __start_trade_for_user(self, user):
         print("Start trade for %s" % user["UserName"])
-        trader = Trader(user)
+        trader = Trader(user, self.__mq)
         trader.start_trade()
         print("End the trade for %s" % user["UserName"])
 
     def __trade_job(self):
         users = self.__usr_manager.get_all_user()
         for user in users:
-            self.__start_trade_for_user(user, self.__mq)
+            self.__start_trade_for_user(user)
 
     def start(self):
         self.__scheduler.add_job(self.__trade_job, 'interval', hours = self.__trade_interval)
