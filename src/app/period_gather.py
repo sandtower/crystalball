@@ -13,7 +13,7 @@ import logging
 setup_logger('period_gather.log')
 _logger = logging.getLogger(__name__)
 
-class StockBasicGather(object):
+class PeriodGather(object):
     def __init__(self, db): 
         self.__db = db
         self.__scheduler = BlockingScheduler()
@@ -45,13 +45,9 @@ class StockBasicGather(object):
         if self.__scheduler:
             self.__scheduler.shutdown()
 
-class PeriodGather(object):
-    def __init__(self):
-        pass
-
 if __name__ == "__main__":
     db = DB(Constants.HIST_DATA_DB_NAME)
-    gather = StockBasicGather(db)
+    gather = PeriodGather(db)
     gather.start()
     while True:
         time.sleep(1)
