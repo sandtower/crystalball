@@ -4,8 +4,8 @@ from util.constants import Constants
 import tushare as ts
 
 from collections import OrderedDict
-import json
 import os
+import msgpack
 
 import logging
 
@@ -50,7 +50,7 @@ class HistTickCollector(object):
         data_file = os.path.join(self.__base_dir, date)
         file = open(data_file, 'r')
         try:
-            datas = json.load(file)
+            datas = msgpack.unpackb(file.read())
             return OrderedDict(sorted(datas.items(), key= lambda t: t[0]))
         except Exception as e:
             _logger.exception(e)
@@ -77,7 +77,7 @@ class HistTickCollector(object):
     def __save_to_file(self, date, result):
         data_file = os.path.join(self.__base_dir, date)
         with open(data_file, 'w') as outfile:
-            outfile.write(json.dumps(result))
+            outfile.write(msgpack.packb(result))
 
     def get_middle_price(self, date):
         datas = self.collect(date)
