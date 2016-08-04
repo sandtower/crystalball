@@ -1,5 +1,5 @@
 from util.config import Config
-from util.db import DB, Collection 
+from util.file_db import FileDB
 from util.constants import Constants
 import tushare as ts
 
@@ -20,7 +20,6 @@ class HistTickCollector(object):
         self.__db = db
         self.__config = config
         self.__base_dir = None
-        self.__collection = Collection(stock_code, db)
         self.__setup()
 
     def __setup(self):
@@ -29,12 +28,7 @@ class HistTickCollector(object):
             _logger.warn('hist tick collector get config failed.')
             return
 
-        if not os.path.exists(root_dir):
-            os.mkdir(root_dir, 0755)
-
         base_dir = os.path.join(root_dir, self.__stock_code)
-        if not os.path.exists(base_dir):
-            os.mkdir(base_dir, 0755)
         self.__base_dir = base_dir
         
     def collect(self, date):
@@ -50,7 +44,10 @@ class HistTickCollector(object):
         data_file = os.path.join(self.__base_dir, date)
         file = open(data_file, 'r')
         try:
-            datas = msgpack.unpackb(file.read())
+            raw_datas = file.read()
+            datas = msgpack.unpackb(raw_datas)
+            key = '_'.join([self.__stock_code, date]) 
+            self.__db.set(key, raw_datas)
             return OrderedDict(sorted(datas.items(), key= lambda t: t[0]))
         except Exception as e:
             _logger.exception(e)
@@ -60,7 +57,7 @@ class HistTickCollector(object):
         try:
             df = ts.get_tick_data(self.__stock_code, date, retry_count=5)
             result = self.__parse_dataframe(df)
-            self.__save_to_file(date, result)
+            self.__save_to_db(date, result)
             return result
         except Exception as e:
             _logger.exception(e)
@@ -74,10 +71,9 @@ class HistTickCollector(object):
             result[key] = record.to_dict()
         return OrderedDict(sorted(result.items(), key= lambda t: t[0]))
 
-    def __save_to_file(self, date, result):
-        data_file = os.path.join(self.__base_dir, date)
-        with open(data_file, 'w') as outfile:
-            outfile.write(msgpack.packb(result))
+    def __save_to_db(self, date, result):
+        key = '_'.join([self.__stock_code, date])
+        self.__db.set(key, msgpack.packb(result))
 
     def get_middle_price(self, date):
         datas = self.collect(date)
@@ -96,8 +92,8 @@ class HistTickCollector(object):
         return time, price, volume
 
 if __name__ == '__main__':
-    db = DB(Constants.HIST_TICK_DB_NAME)
     config = Config()
+    db = FileDB('/data/test')
     collector = HistTickCollector('600036', db, config)
     collector.collect('2016-06-28')
     print collector.get_middle_price('2016-06-28')

@@ -83,6 +83,7 @@ class BatchBackTest(object):
 
             initial_price = datas[0]['fqPrice']
             final_price = datas[-1]['fqPrice']
+            _logger.info('%r, %r' % (initial_price, final_price))
             fix = float('%0.3f' % ((final_price - initial_price) / initial_price))
             return roi, fix
             
@@ -100,7 +101,7 @@ if __name__ == "__main__":
     import signal
     signal.signal(signal.SIGUSR1, dumpstacks)
 
-    #single_test = SingleBackTest('000918') 
+    #single_test = SingleBackTest('002089') 
     #single_test.start()
     #single_test.test('2015-01-01', '2015-12-31')
     #single_test.stop()

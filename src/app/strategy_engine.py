@@ -7,6 +7,7 @@ from channel.mq_server import MqServer, MsgQueueException
 from util.db import DB, Collection
 from util.config import Config
 from util.constants import Constants
+from util.file_db import FileDB
 from util.logger import setup_logger
 from util.dump_stack import dumpstacks 
 from util.util import Util
@@ -27,7 +28,7 @@ class StrategyEngine(object):
     def __init__(self):
         self.__mq_server = None
         self.__data_db = DB(Constants.HIST_DATA_DB_NAME)
-        self.__tick_db = DB(Constants.HIST_TICK_DB_NAME)
+        self.__tick_db = FileDB('/data/hist_tick_db')
         self.__trading_strategy = None
         self.__tick_collector = None
 

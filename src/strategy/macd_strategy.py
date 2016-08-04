@@ -38,7 +38,7 @@ class MacdStrategy(BaseStrategy):
             high = item[1]['highestPrice']
             low = item[1]['lowestPrice']
 
-            _logger.info("date = %r, macd = %r, current price = %r" % (item[0], macd, current_price)) 
+            #_logger.info("date = %r, macd = %r, current price = %r" % (item[0], macd, current_price)) 
             if not current_price:
                 _logger.warn('get stock(%r) date(%r) tick price fail.' % (stock_code, item[0]))
                 continue
