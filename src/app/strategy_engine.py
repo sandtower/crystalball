@@ -28,7 +28,8 @@ class StrategyEngine(object):
     def __init__(self):
         self.__mq_server = None
         self.__data_db = DB(Constants.HIST_DATA_DB_NAME)
-        self.__tick_db = FileDB('/data/hist_tick_db')
+        self.__config = Config()
+        self.__tick_db = FileDB(self.__config.get_config('persistent', 'hist_tick_dir'))
         self.__trading_strategy = None
         self.__tick_collector = None
 
@@ -63,7 +64,7 @@ class StrategyEngine(object):
         history_data = self.__get_data(stock_code, start, end)
         context.set_history_data(stock_code, history_data)
 
-        self.__tick_collector = HistTickCollector(stock_code, self.__tick_db, Config())
+        self.__tick_collector = HistTickCollector(stock_code, self.__tick_db)
         self.__trading_strategy = StrategyFactory.create_strategy(strategy, self.__price_generator)
         deal_strategy = DealStrategy()
         sugestions = self.__trading_strategy.decide(context, stock_code, start)

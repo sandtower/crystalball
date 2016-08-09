@@ -17,6 +17,11 @@ class FileDB(object):
         if self.__db and len(key) > 0:
             self.__db.delete(key)
 
+    def contain(self, key):
+        if self.__db and len(key) > 0:
+            return key in self.__db
+        return False
+
 if __name__ == '__main__':
     db = FileDB('/data/test')
     db.set('hello', 'kitty')

@@ -101,7 +101,7 @@ if __name__ == "__main__":
     import signal
     signal.signal(signal.SIGUSR1, dumpstacks)
 
-    #single_test = SingleBackTest('002089') 
+    #single_test = SingleBackTest('600701') 
     #single_test.start()
     #single_test.test('2015-01-01', '2015-12-31')
     #single_test.stop()
