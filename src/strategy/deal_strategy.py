@@ -11,7 +11,7 @@ class DealStrategy(object):
     def deal(self, context, stock_code, decisions):
         holding = {'shares':0, 'cost':0.0, 'fund':self.__init_fund, 'fq_factor':0.0}
         if context.get_holding_data(stock_code):
-            holding = contex.get_holding_data(stock_code)
+            holding = context.get_holding_data(stock_code)
 
         result = []
         for decision in decisions:
